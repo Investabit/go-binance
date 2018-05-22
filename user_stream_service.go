@@ -2,6 +2,7 @@ package binance
 
 import (
 	"context"
+	"net/http"
 )
 
 // StartUserStreamService create listen key for user stream service
@@ -10,7 +11,7 @@ type StartUserStreamService struct {
 }
 
 // Do send request
-func (s *StartUserStreamService) Do(ctx context.Context, opts ...RequestOption) (listenKey string, err error) {
+func (s *StartUserStreamService) Do(ctx context.Context, opts ...RequestOption) (listenKey string, raw *http.Response, err error) {
 	r := &request{
 		method:   "POST",
 		endpoint: "/api/v1/userDataStream",
@@ -18,14 +19,14 @@ func (s *StartUserStreamService) Do(ctx context.Context, opts ...RequestOption) 
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return "", err
+		return "", data.Response, err
 	}
-	j, err := newJSON(data)
+	j, err := newJSON(data.Data)
 	if err != nil {
-		return "", err
+		return "", data.Response, err
 	}
 	listenKey = j.Get("listenKey").MustString()
-	return listenKey, nil
+	return listenKey, data.Response, nil
 }
 
 // KeepaliveUserStreamService update listen key
@@ -41,15 +42,15 @@ func (s *KeepaliveUserStreamService) ListenKey(listenKey string) *KeepaliveUserS
 }
 
 // Do send request
-func (s *KeepaliveUserStreamService) Do(ctx context.Context, opts ...RequestOption) (err error) {
+func (s *KeepaliveUserStreamService) Do(ctx context.Context, opts ...RequestOption) (raw *http.Response, err error) {
 	r := &request{
 		method:   "PUT",
 		endpoint: "/api/v1/userDataStream",
 		secType:  secTypeAPIKey,
 	}
 	r.setFormParam("listenKey", s.listenKey)
-	_, err = s.c.callAPI(ctx, r, opts...)
-	return err
+	data, err := s.c.callAPI(ctx, r, opts...)
+	return data.Response, err
 }
 
 // CloseUserStreamService delete listen key
@@ -65,13 +66,13 @@ func (s *CloseUserStreamService) ListenKey(listenKey string) *CloseUserStreamSer
 }
 
 // Do send request
-func (s *CloseUserStreamService) Do(ctx context.Context, opts ...RequestOption) (err error) {
+func (s *CloseUserStreamService) Do(ctx context.Context, opts ...RequestOption) (raw *http.Response, err error) {
 	r := &request{
 		method:   "DELETE",
 		endpoint: "/api/v1/userDataStream",
 		secType:  secTypeAPIKey,
 	}
 	r.setFormParam("listenKey", s.listenKey)
-	_, err = s.c.callAPI(ctx, r, opts...)
-	return err
+	data, err := s.c.callAPI(ctx, r, opts...)
+	return data.Response, err
 }

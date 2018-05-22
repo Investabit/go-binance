@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 )
 
 // ExchangeInfoService exchange info service
@@ -11,7 +12,7 @@ type ExchangeInfoService struct {
 }
 
 // Do send request
-func (s *ExchangeInfoService) Do(ctx context.Context, opts ...RequestOption) (res *ExchangeInfo, err error) {
+func (s *ExchangeInfoService) Do(ctx context.Context, opts ...RequestOption) (res *ExchangeInfo, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v1/exchangeInfo",
@@ -19,15 +20,15 @@ func (s *ExchangeInfoService) Do(ctx context.Context, opts ...RequestOption) (re
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
 	res = new(ExchangeInfo)
-	err = json.Unmarshal(data, res)
+	err = json.Unmarshal(data.Data, res)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
 
-	return res, nil
+	return res, data.Response, nil
 }
 
 // ExchangeInfo exchange info

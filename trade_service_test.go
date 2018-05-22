@@ -44,7 +44,7 @@ func (s *tradeServiceTestSuite) TestListTrades() {
 		s.assertRequestEqual(e, r)
 	})
 
-	trades, err := s.client.NewListTradesService().Symbol(symbol).
+	trades, _, err := s.client.NewListTradesService().Symbol(symbol).
 		Limit(limit).FromID(fromID).Do(newContext())
 	r := s.r()
 	r.NoError(err)
@@ -110,7 +110,7 @@ func (s *tradeServiceTestSuite) TestAggregateTrades() {
 		s.assertRequestEqual(e, r)
 	})
 
-	aggTrades, err := s.client.NewAggTradesService().Symbol(symbol).
+	aggTrades, _, err := s.client.NewAggTradesService().Symbol(symbol).
 		FromID(fromID).StartTime(startTime).EndTime(endTime).Limit(limit).
 		Do(newContext())
 	r := s.r()
@@ -167,7 +167,7 @@ func (s *tradeServiceTestSuite) TestHistoricalTrades() {
 		s.assertRequestEqual(e, r)
 	})
 
-	trades, err := s.client.NewHistoricalTradesService().Symbol(symbol).
+	trades, _, err := s.client.NewHistoricalTradesService().Symbol(symbol).
 		Limit(limit).FromID(fromID).Do(newContext())
 	r := s.r()
 	r.NoError(err)
@@ -207,7 +207,7 @@ func (s *tradeServiceTestSuite) TestRecentTrades() {
 		s.assertRequestEqual(e, r)
 	})
 
-	trades, err := s.client.NewRecentTradesService().Symbol(symbol).Limit(limit).Do(newContext())
+	trades, _, err := s.client.NewRecentTradesService().Symbol(symbol).Limit(limit).Do(newContext())
 	r := s.r()
 	r.NoError(err)
 	r.Len(trades, 1)

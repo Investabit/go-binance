@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 )
 
 // ListDepositsService list deposits
@@ -39,7 +40,7 @@ func (s *ListDepositsService) EndTime(endTime int64) *ListDepositsService {
 }
 
 // Do send request
-func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (deposits []*Deposit, err error) {
+func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (deposits []*Deposit, resp *http.Response, err error) {
 	r := &request{
 		method:   "POST",
 		endpoint: "/wapi/v1/getDepositHistory.html",
@@ -62,14 +63,14 @@ func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (de
 
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return
+		return nil, data.Response, err
 	}
 	res := new(DepositHistoryResponse)
-	err = json.Unmarshal(data, res)
+	err = json.Unmarshal(data.Data, res)
 	if err != nil {
 		return
 	}
-	return res.Deposits, nil
+	return res.Deposits, data.Response, nil
 }
 
 // DepositHistoryResponse define deposit history

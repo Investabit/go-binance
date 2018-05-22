@@ -36,7 +36,7 @@ func (s *withdrawServiceTestSuite) TestCreateWithdraw() {
 		s.assertRequestEqual(e, r)
 	})
 
-	err := s.client.NewCreateWithdrawService().Asset(asset).
+	_, err := s.client.NewCreateWithdrawService().Asset(asset).
 		Address(address).Amount(amount).Name(name).Do(newContext())
 	s.r().NoError(err)
 }
@@ -79,7 +79,7 @@ func (s *withdrawServiceTestSuite) TestListWithdraws() {
 		s.assertRequestEqual(e, r)
 	})
 
-	withdraws, err := s.client.NewListWithdrawsService().Asset(asset).
+	withdraws, _, err := s.client.NewListWithdrawsService().Asset(asset).
 		Status(status).StartTime(startTime).EndTime(endTime).
 		Do(newContext())
 	r := s.r()

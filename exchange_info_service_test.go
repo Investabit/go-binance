@@ -36,7 +36,7 @@ func (s *exchangeInfoServiceTestSuite) TestExchangeInfo() {
 		e := newRequest()
 		s.assertRequestEqual(e, r)
 	})
-	res, err := s.client.NewExchangeInfoService().Do(newContext())
+	res, _, err := s.client.NewExchangeInfoService().Do(newContext())
 	s.r().NoError(err)
 	ei := &ExchangeInfo{
 		Symbols: []Symbol{

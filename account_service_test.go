@@ -43,7 +43,7 @@ func (s *accountServiceTestSuite) TestGetAccount() {
 		s.assertRequestEqual(e, r)
 	})
 
-	res, err := s.client.NewGetAccountService().Do(newContext())
+	res, _, err := s.client.NewGetAccountService().Do(newContext())
 	s.r().NoError(err)
 	e := &Account{
 		MakerCommission:  15,

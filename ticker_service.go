@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 )
 
 // ListBookTickersService list all book tickers
@@ -11,21 +12,21 @@ type ListBookTickersService struct {
 }
 
 // Do send request
-func (s *ListBookTickersService) Do(ctx context.Context, opts ...RequestOption) (res []*BookTicker, err error) {
+func (s *ListBookTickersService) Do(ctx context.Context, opts ...RequestOption) (res []*BookTicker, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v3/ticker/bookTicker",
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return []*BookTicker{}, err
+		return []*BookTicker{}, data.Response, err
 	}
 	res = make([]*BookTicker, 0)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(data.Data, &res)
 	if err != nil {
-		return []*BookTicker{}, err
+		return []*BookTicker{}, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // BookTickerService list symbol's book ticker
@@ -41,7 +42,7 @@ func (s *BookTickerService) Symbol(symbol string) *BookTickerService {
 }
 
 // Do send request
-func (s *BookTickerService) Do(ctx context.Context, opts ...RequestOption) (res *BookTicker, err error) {
+func (s *BookTickerService) Do(ctx context.Context, opts ...RequestOption) (res *BookTicker, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v3/ticker/bookTicker",
@@ -49,14 +50,14 @@ func (s *BookTickerService) Do(ctx context.Context, opts ...RequestOption) (res 
 	r.setParam("symbol", s.symbol)
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
 	res = new(BookTicker)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(data.Data, &res)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // BookTicker define book ticker info
@@ -74,21 +75,21 @@ type ListPricesService struct {
 }
 
 // Do send request
-func (s *ListPricesService) Do(ctx context.Context, opts ...RequestOption) (res []*SymbolPrice, err error) {
+func (s *ListPricesService) Do(ctx context.Context, opts ...RequestOption) (res []*SymbolPrice, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v1/ticker/allPrices",
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return []*SymbolPrice{}, err
+		return []*SymbolPrice{}, data.Response, err
 	}
 	res = make([]*SymbolPrice, 0)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(data.Data, &res)
 	if err != nil {
-		return []*SymbolPrice{}, err
+		return []*SymbolPrice{}, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // SymbolPrice define symbol and price pair
@@ -110,7 +111,7 @@ func (s *PriceChangeStatsService) Symbol(symbol string) *PriceChangeStatsService
 }
 
 // Do send request
-func (s *PriceChangeStatsService) Do(ctx context.Context, opts ...RequestOption) (res *PriceChangeStats, err error) {
+func (s *PriceChangeStatsService) Do(ctx context.Context, opts ...RequestOption) (res *PriceChangeStats, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v1/ticker/24hr",
@@ -118,14 +119,14 @@ func (s *PriceChangeStatsService) Do(ctx context.Context, opts ...RequestOption)
 	r.setParam("symbol", s.symbol)
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return res, err
+		return nil, data.Response, err
 	}
 	res = new(PriceChangeStats)
-	err = json.Unmarshal(data, res)
+	err = json.Unmarshal(data.Data, res)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // PriceChangeStats define price change stats

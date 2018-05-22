@@ -26,7 +26,7 @@ func (s *serverServiceTestSuite) TestPing() {
 		s.assertRequestEqual(e, r)
 	})
 
-	err := s.client.NewPingService().Do(newContext())
+	_, err := s.client.NewPingService().Do(newContext())
 	s.r().NoError(err)
 }
 
@@ -42,7 +42,7 @@ func (s *serverServiceTestSuite) TestServerTime() {
 		s.assertRequestEqual(e, r)
 	})
 
-	serverTime, err := s.client.NewServerTimeService().Do(newContext())
+	serverTime, _, err := s.client.NewServerTimeService().Do(newContext())
 	s.r().NoError(err)
 	s.r().EqualValues(1499827319559, serverTime)
 }
@@ -55,7 +55,7 @@ func (s *serverServiceTestSuite) TestServerTimeError() {
 		e := newRequest()
 		s.assertRequestEqual(e, r)
 	})
-	_, err := s.client.NewServerTimeService().Do(newContext())
+	_, _, err := s.client.NewServerTimeService().Do(newContext())
 	s.r().Error(err)
 	s.r().Contains(err.Error(), "dummy error")
 }
@@ -71,7 +71,7 @@ func (s *serverServiceTestSuite) TestServerTimeBadRequest() {
 		e := newRequest()
 		s.assertRequestEqual(e, r)
 	})
-	_, err := s.client.NewServerTimeService().Do(newContext())
+	_, _, err := s.client.NewServerTimeService().Do(newContext())
 	s.r().Error(err)
 	s.r().True(IsAPIError(err))
 }
@@ -84,7 +84,7 @@ func (s *serverServiceTestSuite) TestInvalidResponseBody() {
 		e := newRequest()
 		s.assertRequestEqual(e, r)
 	})
-	_, err := s.client.NewServerTimeService().Do(newContext())
+	_, _, err := s.client.NewServerTimeService().Do(newContext())
 	s.r().Error(err)
 	s.r().False(IsAPIError(err))
 }

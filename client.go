@@ -151,14 +151,20 @@ func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
 	return nil
 }
 
-func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption) (data []byte, err error) {
+type Response struct {
+	Data     []byte
+	Response *http.Response
+}
+
+func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption) (response *Response, err error) {
+	response = &Response{}
 	err = c.parseRequest(r, opts...)
 	if err != nil {
-		return []byte{}, err
+		return
 	}
 	req, err := http.NewRequest(r.method, r.fullURL, r.body)
 	if err != nil {
-		return []byte{}, err
+		return
 	}
 	req = req.WithContext(ctx)
 	req.Header = r.header
@@ -167,34 +173,35 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 	if f == nil {
 		f = c.HTTPClient.Do
 	}
-	res, err := f(req)
+
+	response.Response, err = f(req)
 	if err != nil {
-		return []byte{}, err
+		return
 	}
-	data, err = ioutil.ReadAll(res.Body)
+	response.Data, err = ioutil.ReadAll(response.Response.Body)
 	if err != nil {
-		return []byte{}, err
+		return
 	}
 	defer func() {
-		cerr := res.Body.Close()
+		cerr := response.Response.Body.Close()
 		// Only overwrite the retured error if the original error was nil and an
 		// error occurred while closing the body.
 		if err == nil && cerr != nil {
 			err = cerr
 		}
 	}()
-	c.debug("response: %#v", res)
-	c.debug("response body: %s", string(data))
+	c.debug("response: %#v", response.Response)
+	c.debug("response body: %s", string(response.Data))
 
-	if res.StatusCode >= 400 {
+	if response.Response.StatusCode >= 400 {
 		apiErr := new(APIError)
-		e := json.Unmarshal(data, apiErr)
+		e := json.Unmarshal(response.Data, apiErr)
 		if e != nil {
 			c.debug("failed to unmarshal json: %s", e)
 		}
-		return nil, apiErr
+		return response, apiErr
 	}
-	return data, nil
+	return response, nil
 }
 
 // NewPingService init ping service

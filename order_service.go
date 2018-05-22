@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 )
 
 // CreateOrderService create order
@@ -80,7 +81,7 @@ func (s *CreateOrderService) NewOrderRespType(newOrderRespType NewOrderRespType)
 	return s
 }
 
-func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, opts ...RequestOption) (data []byte, err error) {
+func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, opts ...RequestOption) (response *Response, err error) {
 	r := &request{
 		method:   "POST",
 		endpoint: endpoint,
@@ -111,25 +112,25 @@ func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, o
 		m["newOrderRespType"] = *s.newOrderRespType
 	}
 	r.setFormParams(m)
-	data, err = s.c.callAPI(ctx, r, opts...)
-	if err != nil {
-		return []byte{}, err
-	}
-	return data, nil
+	return s.c.callAPI(ctx, r, opts...)
+	// if err != nil {
+	// 	return  err
+	// }
+	// return data, nil
 }
 
 // Do send request
-func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res *CreateOrderResponse, err error) {
+func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res *CreateOrderResponse, response *http.Response, err error) {
 	data, err := s.createOrder(ctx, "/api/v3/order", opts...)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
 	res = new(CreateOrderResponse)
-	err = json.Unmarshal(data, res)
+	err = json.Unmarshal(data.Data, res)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // Test send test api to check if the request is valid
@@ -175,7 +176,7 @@ func (s *ListOpenOrdersService) Symbol(symbol string) *ListOpenOrdersService {
 }
 
 // Do send request
-func (s *ListOpenOrdersService) Do(ctx context.Context, opts ...RequestOption) (res []*Order, err error) {
+func (s *ListOpenOrdersService) Do(ctx context.Context, opts ...RequestOption) (res []*Order, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v3/openOrders",
@@ -184,14 +185,14 @@ func (s *ListOpenOrdersService) Do(ctx context.Context, opts ...RequestOption) (
 	r.setParam("symbol", s.symbol)
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return []*Order{}, err
+		return []*Order{}, data.Response, err
 	}
 	res = make([]*Order, 0)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(data.Data, &res)
 	if err != nil {
-		return []*Order{}, err
+		return []*Order{}, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // GetOrderService get an order
@@ -221,7 +222,7 @@ func (s *GetOrderService) OrigClientOrderID(origClientOrderID string) *GetOrderS
 }
 
 // Do send request
-func (s *GetOrderService) Do(ctx context.Context, opts ...RequestOption) (res *Order, err error) {
+func (s *GetOrderService) Do(ctx context.Context, opts ...RequestOption) (res *Order, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v3/order",
@@ -236,14 +237,14 @@ func (s *GetOrderService) Do(ctx context.Context, opts ...RequestOption) (res *O
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
 	res = new(Order)
-	err = json.Unmarshal(data, res)
+	err = json.Unmarshal(data.Data, res)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // Order define order info
@@ -290,7 +291,7 @@ func (s *ListOrdersService) Limit(limit int) *ListOrdersService {
 }
 
 // Do send request
-func (s *ListOrdersService) Do(ctx context.Context, opts ...RequestOption) (res []*Order, err error) {
+func (s *ListOrdersService) Do(ctx context.Context, opts ...RequestOption) (res []*Order, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v3/allOrders",
@@ -305,14 +306,14 @@ func (s *ListOrdersService) Do(ctx context.Context, opts ...RequestOption) (res 
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return []*Order{}, err
+		return nil, data.Response, err
 	}
 	res = make([]*Order, 0)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(data.Data, &res)
 	if err != nil {
-		return []*Order{}, err
+		return []*Order{}, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // CancelOrderService cancel an order
@@ -349,7 +350,7 @@ func (s *CancelOrderService) NewClientOrderID(newClientOrderID string) *CancelOr
 }
 
 // Do send request
-func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res *CancelOrderResponse, err error) {
+func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res *CancelOrderResponse, raw *http.Response, err error) {
 	r := &request{
 		method:   "DELETE",
 		endpoint: "/api/v3/order",
@@ -367,14 +368,14 @@ func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
 	res = new(CancelOrderResponse)
-	err = json.Unmarshal(data, res)
+	err = json.Unmarshal(data.Data, res)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // CancelOrderResponse define response of canceling order

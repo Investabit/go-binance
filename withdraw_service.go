@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 )
 
 // CreateWithdrawService create withdraw
@@ -39,7 +40,7 @@ func (s *CreateWithdrawService) Name(name string) *CreateWithdrawService {
 }
 
 // Do send request
-func (s *CreateWithdrawService) Do(ctx context.Context) (err error) {
+func (s *CreateWithdrawService) Do(ctx context.Context) (raw *http.Response, err error) {
 	r := &request{
 		method:   "POST",
 		endpoint: "/wapi/v1/withdraw.html",
@@ -54,8 +55,8 @@ func (s *CreateWithdrawService) Do(ctx context.Context) (err error) {
 		m["name"] = *s.name
 	}
 	r.setFormParams(m)
-	_, err = s.c.callAPI(ctx, r)
-	return err
+	data, err := s.c.callAPI(ctx, r)
+	return data.Response, err
 }
 
 // ListWithdrawsService list withdraws
@@ -92,7 +93,7 @@ func (s *ListWithdrawsService) EndTime(endTime int64) *ListWithdrawsService {
 }
 
 // Do send request
-func (s *ListWithdrawsService) Do(ctx context.Context) (withdraws []*Withdraw, err error) {
+func (s *ListWithdrawsService) Do(ctx context.Context) (withdraws []*Withdraw, raw *http.Response, err error) {
 	r := &request{
 		method:   "POST",
 		endpoint: "/wapi/v1/getWithdrawHistory.html",
@@ -112,14 +113,14 @@ func (s *ListWithdrawsService) Do(ctx context.Context) (withdraws []*Withdraw, e
 	}
 	data, err := s.c.callAPI(ctx, r)
 	if err != nil {
-		return
+		return nil, data.Response, err
 	}
 	res := new(WithdrawHistoryResponse)
-	err = json.Unmarshal(data, res)
+	err = json.Unmarshal(data.Data, res)
 	if err != nil {
-		return
+		return nil, data.Response, err
 	}
-	return res.Withdraws, nil
+	return res.Withdraws, data.Response, nil
 }
 
 // WithdrawHistoryResponse define withdraw history response

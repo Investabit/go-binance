@@ -49,7 +49,7 @@ func (s *orderServiceTestSuite) TestCreateOrder() {
 		})
 		s.assertRequestEqual(e, r)
 	})
-	res, err := s.client.NewCreateOrderService().Symbol(symbol).Side(side).
+	res, _, err := s.client.NewCreateOrderService().Symbol(symbol).Side(side).
 		Type(orderType).TimeInForce(timeInForce).Quantity(quantity).
 		Price(price).NewClientOrderID(newClientOrderID).Do(newContext())
 	s.r().NoError(err)
@@ -120,7 +120,7 @@ func (s *orderServiceTestSuite) TestCreateOrderFull() {
 		})
 		s.assertRequestEqual(e, r)
 	})
-	res, err := s.client.NewCreateOrderService().Symbol(symbol).Side(side).
+	res, _, err := s.client.NewCreateOrderService().Symbol(symbol).Side(side).
 		Type(orderType).TimeInForce(timeInForce).Quantity(quantity).
 		Price(price).NewClientOrderID(newClientOrderID).
 		NewOrderRespType(newOrderRespType).Do(newContext())
@@ -213,7 +213,7 @@ func (s *orderServiceTestSuite) TestListOpenOrders() {
 		})
 		s.assertRequestEqual(e, r)
 	})
-	orders, err := s.client.NewListOpenOrdersService().Symbol(symbol).
+	orders, _, err := s.client.NewListOpenOrdersService().Symbol(symbol).
 		Do(newContext(), WithRecvWindow(recvWindow))
 	r := s.r()
 	r.NoError(err)
@@ -283,7 +283,7 @@ func (s *orderServiceTestSuite) TestGetOrder() {
 		})
 		s.assertRequestEqual(e, r)
 	})
-	order, err := s.client.NewGetOrderService().Symbol(symbol).
+	order, _, err := s.client.NewGetOrderService().Symbol(symbol).
 		OrderID(orderID).OrigClientOrderID(origClientOrderID).Do(newContext())
 	r := s.r()
 	r.NoError(err)
@@ -337,7 +337,7 @@ func (s *orderServiceTestSuite) TestListOrders() {
 		s.assertRequestEqual(e, r)
 	})
 
-	orders, err := s.client.NewListOrdersService().Symbol(symbol).
+	orders, _, err := s.client.NewListOrdersService().Symbol(symbol).
 		OrderID(orderID).Limit(limit).Do(newContext())
 	r := s.r()
 	r.NoError(err)
@@ -384,7 +384,7 @@ func (s *orderServiceTestSuite) TestCancelOrder() {
 		s.assertRequestEqual(e, r)
 	})
 
-	res, err := s.client.NewCancelOrderService().Symbol(symbol).
+	res, _, err := s.client.NewCancelOrderService().Symbol(symbol).
 		OrderID(orderID).OrigClientOrderID(origClientOrderID).
 		NewClientOrderID(newClientOrderID).Do(newContext())
 	r := s.r()

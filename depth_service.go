@@ -2,6 +2,7 @@ package binance
 
 import (
 	"context"
+	"net/http"
 )
 
 // DepthService show depth info
@@ -24,7 +25,7 @@ func (s *DepthService) Limit(limit int) *DepthService {
 }
 
 // Do send request
-func (s *DepthService) Do(ctx context.Context, opts ...RequestOption) (res *DepthResponse, err error) {
+func (s *DepthService) Do(ctx context.Context, opts ...RequestOption) (res *DepthResponse, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v1/depth",
@@ -35,11 +36,11 @@ func (s *DepthService) Do(ctx context.Context, opts ...RequestOption) (res *Dept
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
-	j, err := newJSON(data)
+	j, err := newJSON(data.Data)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
 	res = new(DepthResponse)
 	res.LastUpdateID = j.Get("lastUpdateId").MustInt64()
@@ -61,7 +62,7 @@ func (s *DepthService) Do(ctx context.Context, opts ...RequestOption) (res *Dept
 			Quantity: item.GetIndex(1).MustString(),
 		}
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // DepthResponse define depth info with bids and asks

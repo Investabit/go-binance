@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 )
 
 // ListTradesService list trades
@@ -32,7 +33,7 @@ func (s *ListTradesService) FromID(fromID int64) *ListTradesService {
 }
 
 // Do send request
-func (s *ListTradesService) Do(ctx context.Context, opts ...RequestOption) (res []*TradeV3, err error) {
+func (s *ListTradesService) Do(ctx context.Context, opts ...RequestOption) (res []*TradeV3, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v3/myTrades",
@@ -47,14 +48,14 @@ func (s *ListTradesService) Do(ctx context.Context, opts ...RequestOption) (res 
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return []*TradeV3{}, err
+		return []*TradeV3{}, data.Response, err
 	}
 	res = make([]*TradeV3, 0)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(data.Data, &res)
 	if err != nil {
-		return []*TradeV3{}, err
+		return []*TradeV3{}, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // HistoricalTradesService trades
@@ -84,7 +85,7 @@ func (s *HistoricalTradesService) FromID(fromID int64) *HistoricalTradesService 
 }
 
 // Do send request
-func (s *HistoricalTradesService) Do(ctx context.Context, opts ...RequestOption) (res []*Trade, err error) {
+func (s *HistoricalTradesService) Do(ctx context.Context, opts ...RequestOption) (res []*Trade, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v1/historicalTrades",
@@ -100,14 +101,14 @@ func (s *HistoricalTradesService) Do(ctx context.Context, opts ...RequestOption)
 
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return
+		return nil, data.Response, err
 	}
 	res = make([]*Trade, 0)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(data.Data, &res)
 	if err != nil {
-		return
+		return nil, data.Response, err
 	}
-	return
+	return res, data.Response, nil
 }
 
 // Trade define trade info
@@ -175,7 +176,7 @@ func (s *AggTradesService) Limit(limit int) *AggTradesService {
 }
 
 // Do send request
-func (s *AggTradesService) Do(ctx context.Context, opts ...RequestOption) (res []*AggTrade, err error) {
+func (s *AggTradesService) Do(ctx context.Context, opts ...RequestOption) (res []*AggTrade, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v1/aggTrades",
@@ -195,14 +196,14 @@ func (s *AggTradesService) Do(ctx context.Context, opts ...RequestOption) (res [
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return []*AggTrade{}, err
+		return []*AggTrade{}, data.Response, err
 	}
 	res = make([]*AggTrade, 0)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(data.Data, &res)
 	if err != nil {
-		return []*AggTrade{}, err
+		return []*AggTrade{}, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // AggTrade define aggregate trade info
@@ -237,7 +238,7 @@ func (s *RecentTradesService) Limit(limit int) *RecentTradesService {
 }
 
 // Do send request
-func (s *RecentTradesService) Do(ctx context.Context, opts ...RequestOption) (res []*Trade, err error) {
+func (s *RecentTradesService) Do(ctx context.Context, opts ...RequestOption) (res []*Trade, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v1/trades",
@@ -248,12 +249,12 @@ func (s *RecentTradesService) Do(ctx context.Context, opts ...RequestOption) (re
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return []*Trade{}, err
+		return []*Trade{}, data.Response, err
 	}
 	res = make([]*Trade, 0)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(data.Data, &res)
 	if err != nil {
-		return []*Trade{}, err
+		return []*Trade{}, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }

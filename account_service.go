@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 )
 
 // GetAccountService get account info
@@ -11,7 +12,7 @@ type GetAccountService struct {
 }
 
 // Do send request
-func (s *GetAccountService) Do(ctx context.Context, opts ...RequestOption) (res *Account, err error) {
+func (s *GetAccountService) Do(ctx context.Context, opts ...RequestOption) (res *Account, raw *http.Response, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/api/v3/account",
@@ -19,14 +20,14 @@ func (s *GetAccountService) Do(ctx context.Context, opts ...RequestOption) (res 
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
 	res = new(Account)
-	err = json.Unmarshal(data, res)
+	err = json.Unmarshal(data.Data, res)
 	if err != nil {
-		return nil, err
+		return nil, data.Response, err
 	}
-	return res, nil
+	return res, data.Response, nil
 }
 
 // Account define account info

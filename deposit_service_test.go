@@ -39,7 +39,7 @@ func (s *depositServiceTestSuite) TestListDeposits() {
 		})
 		s.assertRequestEqual(e, r)
 	})
-	deposits, err := s.client.NewListDepositsService().Asset("BTC").
+	deposits, _, err := s.client.NewListDepositsService().Asset("BTC").
 		Status(1).StartTime(1508198532000).EndTime(1508198532001).
 		Do(newContext())
 	r := s.r()
