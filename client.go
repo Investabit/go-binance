@@ -34,8 +34,15 @@ const (
 	SideTypeBuy  SideType = "BUY"
 	SideTypeSell SideType = "SELL"
 
-	OrderTypeLimit  OrderType = "LIMIT"
-	OrderTypeMarket OrderType = "MARKET"
+	OrderTypeLimit      OrderType = "LIMIT"
+	OrderTypeMarket     OrderType = "MARKET"
+	OrderTypeLimitMaker OrderType = "LIMIT_MAKER"
+
+	OrderTypeStopLoss      OrderType = "STOP_LOSS"
+	OrderTypeStopLossLimit OrderType = "STOP_LOSS_LIMIT"
+
+	OrderTypeTakeProfit      OrderType = "TAKE_PROFIT"
+	OrderTypeTakeProfitLimit OrderType = "TAKE_PROFIT_LIMIT"
 
 	TimeInForceGTC TimeInForce = "GTC"
 	TimeInForceIOC TimeInForce = "IOC"
@@ -239,6 +246,11 @@ func (c *Client) NewPriceChangeStatsService() *PriceChangeStatsService {
 	return &PriceChangeStatsService{c: c}
 }
 
+// NewListPriceChangeStatsService init list prices change stats service
+func (c *Client) NewListPriceChangeStatsService() *ListPriceChangeStatsService {
+	return &ListPriceChangeStatsService{c: c}
+}
+
 // NewListPricesService init listing prices service
 func (c *Client) NewListPricesService() *ListPricesService {
 	return &ListPricesService{c: c}
@@ -327,4 +339,9 @@ func (c *Client) NewCloseUserStreamService() *CloseUserStreamService {
 // NewExchangeInfoService init exchange info service
 func (c *Client) NewExchangeInfoService() *ExchangeInfoService {
 	return &ExchangeInfoService{c: c}
+}
+
+// NewGetWithdrawFeeService init get withdraw fee service
+func (c *Client) NewGetWithdrawFeeService() *GetWithdrawFeeService {
+	return &GetWithdrawFeeService{c: c}
 }
