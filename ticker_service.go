@@ -140,12 +140,12 @@ func (s *ListPriceChangeStatsService) Do(ctx context.Context, opts ...RequestOpt
 		method:   "GET",
 		endpoint: "/api/v1/ticker/24hr",
 	}
-	data, err := s.c.callAPI(ctx, r, opts...)
+	response, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
 		return res, err
 	}
 	res = make([]*PriceChangeStats, 0)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(response.Data, &res)
 	if err != nil {
 		return nil, err
 	}

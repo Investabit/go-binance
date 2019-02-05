@@ -159,12 +159,12 @@ func (s *GetWithdrawFeeService) Do(ctx context.Context, opts ...RequestOption) (
 		secType:  secTypeSigned,
 	}
 	r.setParam("asset", s.asset)
-	data, err := s.c.callAPI(ctx, r, opts...)
+	response, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
 		return nil, err
 	}
 	res = new(WithdrawFee)
-	err = json.Unmarshal(data, &res)
+	err = json.Unmarshal(response.Data, &res)
 	if err != nil {
 		return nil, err
 	}
